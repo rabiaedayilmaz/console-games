@@ -26,9 +26,11 @@ int nTail;
 // trap for hard game mode :D
 int trapX, trapY;
 int gameMode;
-
 int life;
 int ateTrap;
+
+// magic mushroom to recover
+int magicMushroomX, magicMushroomY;
 
 // further info:
 // https://riptutorial.com/c/example/6564/typedef-enum
@@ -71,6 +73,9 @@ void setup(){
     if(gameMode){
         trapX = rand() % width;
         trapY = rand() % height;
+
+        magicMushroomX = rand() % width;
+        magicMushroomY = rand() % height;
     }
 
     score = 0;
@@ -98,7 +103,8 @@ void draw(){
 
             if(i==y && j==x) {printf("O");}
             else if(i==foodY && j==foodX) {printf("F");}
-            else if(gameMode && (i==trapX && j==trapY)) {printf("X");}
+            else if(gameMode && (j==trapX && i==trapY)) {printf("X");}
+            else if(gameMode && (j==magicMushroomX && i==magicMushroomY)) {printf("+");}
             else{
                 print = false;
                 for(int k=0; k<nTail; k++){ 
@@ -275,18 +281,29 @@ void logic(){
 
         // ate food so grow up :)
         nTail++;
+
+        // it does not hurt anymore
+        ateTrap = 0;
     }
 
     // caught in a trap
     // reversed locations, do not change
     // because yo need to change the variables in the draw func
-    if(trapX == y && trapY == x){
+    if(trapX == x && trapY == y){
         life = life - 1;
         ateTrap=1;
 
         // relocate new trap
         trapX = rand() % width;
         trapY = rand() % height;
+    }
+
+    if(magicMushroomX == x && magicMushroomY == y){
+        life++;
+
+        // relocate new mushroom
+        magicMushroomX = rand() % width;
+        magicMushroomY = rand() % height;
     }
 
     // life ran out
@@ -320,7 +337,7 @@ int main(){
 
     while(!gameOver){
         draw();
-        sleep(1);
+        sleep(0.9);
 
         input();
         logic();
